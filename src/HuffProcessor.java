@@ -58,13 +58,75 @@ public class HuffProcessor {
 	 * @param out
 	 *            Buffered bit stream writing to the output file.
 	 */
+	
+	public HuffNode readTreeHeader(BitInputStream in) {
+		int bit = in.readBits(1);
+		if (bit == -1) {
+			throw new HuffException("out of bits in reading tree header");
+		}
+		if (bit==0) {
+			HuffNode left= readTreeHeader(in);
+		    HuffNode right = readTreeHeader(in);
+		    HuffNode node= new HuffNode(0,0,left,right);
+		    return node;
+		}
+		else {
+		    int value = in.readBits(BITS_PER_WORD +1);
+		    HuffNode node = new HuffNode(value,0,null,null);
+		    return node;
+		}
+		
+		
+	}
+	
+	public void readCompressedBit(HuffNode rootnode, BitInputStream in, BitOutputStream out) {
+		HuffNode current = rootnode;
+		while (true) {
+			int bits = in.readBits(1);
+			if (bits== -1) {
+				throw new HuffException("bad input, no PSEUDO_EOF");
+			}
+			else {
+				if (bits == 0) current = current.myLeft;
+				else current = current.myRight;
+				
+				if (current.myValue==1) {
+					if (current.myValue == PSEUDO_EOF)
+						break; //out of loop
+					else {
+						current.myValue=in.readBits(BITS_PER_WORD);
+						current= rootnode; //start back after leaf
+					}
+				}
+			}
+		}
+	}
+	
 	public void decompress(BitInputStream in, BitOutputStream out){
+		
+		int bits= in.readBits(BITS_PER_INT);
+		if (bits != HUFF_TREE) {
+			throw new HuffException("illegal header starts with "+bits);
+		}   
+		//make sure file is Huffman decoded by checking that first 32 bits are the value HUFF_TREE
+		
+		HuffNode root = readTreeHeader(in);  
+		//Helper Method to read tree used to decompress
+		
+		readCompressedBits(root,in,out);    //psuedo-code page 9
+		//Helper Method; read bits from compressed file and use them to
+		//traverse root-to-leaf paths, writing leaf values to the output file. STOP when finding PSEUDO_EOF
+		
+		out.close(); 
+		//close output file
 
-		while (true){
+		
+		
+		/*while (true){
 			int val = in.readBits(BITS_PER_WORD);
 			if (val == -1) break;
 			out.writeBits(BITS_PER_WORD, val);
 		}
-		out.close();
+		out.close(); */
 	}
 }
