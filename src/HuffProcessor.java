@@ -110,7 +110,17 @@ public class HuffProcessor {
 		// write encodings for 8 bit chunk followed by encoding for PSEUDO_EOF
 		
 		int val = in.readBits(BITS_PER_WORD);
-		if (val==PSEUDO_EOF) {
+		
+		while (val!=-1) {
+			String code= encodings[val];
+			out.writeBits(code.length(), Integer.parseInt(code,2));
+		
+	    }
+		String code= encodings[PSEUDO_EOF];
+		out.writeBits(code.length(), Integer.parseInt(code,2));
+		
+	     
+		/*if (val==-1) {
 			String code= encodings[PSEUDO_EOF];
 			out.writeBits(code.length(), Integer.parseInt(code,2));
 		}
@@ -118,7 +128,7 @@ public class HuffProcessor {
 			String code= encodings[val];
 			out.writeBits(code.length(), Integer.parseInt(code,2));
 			
-		}
+		}*/
 		
 		/*String code=encodings[val];
 		out.writeBits(code.length(), Integer.parseInt(code,2));
