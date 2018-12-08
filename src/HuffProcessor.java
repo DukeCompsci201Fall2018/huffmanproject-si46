@@ -62,8 +62,8 @@ public class HuffProcessor {
 		while (index < freq.length) {
 		if (freq[index] >0) {
 			pq.add(new HuffNode(index,freq[index],null,null));
-			index++;
 		}
+		index++;
 		}
 		
 		while (pq.size() > 1) {
