@@ -106,15 +106,27 @@ public class HuffProcessor {
 	
 	public void writeCompressedBits(String[] encodings, BitInputStream in, BitOutputStream out) {
 		// write encodings for 8 bit chunk followed by encoding for PSEUDO_EOF
+		String code;
+		int val = in.readBits(BITS_PER_WORD);
+		if (val==-1) {
+			code=encodings[PSEUDO_EOF];
+			out.writeBits(code.length(), Integer.parseInt(code,2));
+		}
+		
+		else {
+			code=encodings[val];
+			out.writeBits(code.length(), Integer.parseInt(code,2));
+		}
+		
+		/*String code=encodings[val];
+		out.writeBits(code.length(), Integer.parseInt(code,2));
+		
+		code=encodings[PSEUDO_EOF];
+		out.writeBits(code.length(), Integer.parseInt(code,2));*/
 	}
 	
 	public void compress(BitInputStream in, BitOutputStream out){
 
-		/*while (true){
-			int val = in.readBits(BITS_PER_WORD);
-			if (val == -1) break;
-			out.writeBits(BITS_PER_WORD, val);
-		}*/
 		int[] counts = readForCounts(in); //determine frequency of every 8 bit character chunk in file being compressed
 		HuffNode root = makeTreeFromCounts(counts); //create tree
 		String[] codings = makeCodingsFromTree(root); //from tree, create encodings for each 8 bit character chunk
