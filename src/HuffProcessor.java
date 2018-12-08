@@ -111,7 +111,7 @@ public class HuffProcessor {
 		
 		int val = in.readBits(BITS_PER_WORD);
 		
-		if (val!=-1) {
+		while (val != -1) {
 			String code= encodings[val];
 			out.writeBits(code.length(), Integer.parseInt(code,2));
 			val=in.readBits(BITS_PER_WORD);
