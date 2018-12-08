@@ -1,3 +1,4 @@
+import java.util.PriorityQueue;
 
 /**
  * Although this class has a history of several years,
@@ -40,24 +41,51 @@ public class HuffProcessor {
 	 * @param out
 	 *            Buffered bit stream writing to the output file.
 	 */
-	
+	int[] freq = new int[ALPH_SIZE + 1];
 	
 	public int[] readForCounts(BitInputStream in) {
-		int[] store = new int[ALPH_SIZE + 1];
+		
 		int bits= in.readBits(BITS_PER_WORD);
 		if (bits == -1) {
 			throw new HuffException("out of bits");
 		}
-		store[bits]+=1;
-		return null;
+		else{
+			freq[bits]+=1;
+		}
+		freq[PSEUDO_EOF] = 1; 
+		return freq;
 	}
 	
 	public HuffNode makeTreeFromCounts(int[] counts) {
-		return null;
+		PriorityQueue<HuffNode> pq = new PriorityQueue<>();
+		int index=0;
+		if (freq[index] >0) {
+			pq.add(new HuffNode(index,freq[index],null,null));
+		}
+		
+		while (pq.size() > 1) {
+			HuffNode left = pq.remove();
+			HuffNode right = pq.remove();
+			HuffNode t = new HuffNode(0,left.myWeight+right.myWeight,left,right);
+			//create new HuffNode t with weight from
+			//left.weight+right.weight and left, right subtrees
+			pq.add(t);
+		}
+		HuffNode root=pq.remove();
+		return root;
+	}
+	
+	public void codingHelper(HuffNode rootnode, String s, String[] encodings) {
+		if (rootnode.myLeft==null && rootnode.myRight==null) {
+			encodings[rootnode.myValue]=path;
+			return;
+		}
 	}
 	
 	public String[] makeCodingsFromTree(HuffNode rootnode) {
-		return null;
+		String[] encodings = new String[ALPH_SIZE +1];
+		codingHelper(rootnode,"",encodings);
+		return encodings;
 	}
 	
 	public void writeHeader(HuffNode rootnode, BitOutputStream out) {
