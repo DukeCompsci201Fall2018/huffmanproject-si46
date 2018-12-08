@@ -40,14 +40,51 @@ public class HuffProcessor {
 	 * @param out
 	 *            Buffered bit stream writing to the output file.
 	 */
+	
+	
+	public int[] readForCounts(BitInputStream in) {
+		int[] store = new int[ALPH_SIZE + 1];
+		int bits= in.readBits(BITS_PER_WORD);
+		if (bits == -1) {
+			throw new HuffException("out of bits");
+		}
+		store[bits]+=1;
+		return null;
+	}
+	
+	public HuffNode makeTreeFromCounts(int[] counts) {
+		return null;
+	}
+	
+	public String[] makeCodingsFromTree(HuffNode rootnode) {
+		return null;
+	}
+	
+	public void writeHeader(HuffNode rootnode, BitOutputStream out) {
+		
+	}
+	
+	public void writeCompressedBits(String[] encodings, BitInputStream in, BitOutputStream out) {
+		
+	}
+	
 	public void compress(BitInputStream in, BitOutputStream out){
 
-		while (true){
+		/*while (true){
 			int val = in.readBits(BITS_PER_WORD);
 			if (val == -1) break;
 			out.writeBits(BITS_PER_WORD, val);
-		}
-		out.close();
+		}*/
+		int[] counts = readForCounts(in); //determine frequency of every 8 bit character chunk in file being compressed
+		HuffNode root = makeTreeFromCounts(counts); //create tree
+		String[] codings = makeCodingsFromTree(root); //from tree, create encodings for each 8 bit character chunk
+		
+		out.writeBits(BITS_PER_INT, HUFF_TREE);   // write magic number and tree to
+		writeHeader(root,out);                    // the beginning/header of the compressed file
+		
+		in.reset();                                      //read file again 
+		writeCompressedBits(codings,in,out);             //write encodings for 8 bit chunk followed by encoding for
+		out.close();                                     //PSEUDO_EOF, then close file being written
 	}
 	/**
 	 * Decompresses a file. Output file must be identical bit-by-bit to the
@@ -120,13 +157,5 @@ public class HuffProcessor {
 		out.close(); 
 		//close output file
 
-		
-		
-		/*while (true){
-			int val = in.readBits(BITS_PER_WORD);
-			if (val == -1) break;
-			out.writeBits(BITS_PER_WORD, val);
-		}
-		out.close(); */
 	}
 }
