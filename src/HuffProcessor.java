@@ -96,12 +96,12 @@ public class HuffProcessor {
 	private void writeHeader(HuffNode rootnode, BitOutputStream out) {
 		//write tree to header of compressed file
 		if (rootnode.myLeft!=null || rootnode.myRight !=null) {
-			out.writeBits(0,rootnode.myValue);
+			out.writeBits(1,0);
 			writeHeader(rootnode.myLeft,out);
 			writeHeader(rootnode.myRight,out);
 		}
 		else {
-			out.write(1);
+			out.writeBits(1,1);
 			out.writeBits(BITS_PER_WORD +1, rootnode.myValue);
 		}
 	}
