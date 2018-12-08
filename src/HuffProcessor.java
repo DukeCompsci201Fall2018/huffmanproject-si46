@@ -59,8 +59,11 @@ public class HuffProcessor {
 	private HuffNode makeTreeFromCounts(int[] counts) {
 		PriorityQueue<HuffNode> pq = new PriorityQueue<>();
 		int index=0;
+		while (index < ALPH_SIZE +1) {
 		if (freq[index] >0) {
 			pq.add(new HuffNode(index,freq[index],null,null));
+			index++;
+		}
 		}
 		
 		while (pq.size() > 1) {
@@ -71,8 +74,7 @@ public class HuffProcessor {
 			//left.weight+right.weight and left, right subtrees
 			pq.add(t);
 		}
-		HuffNode root=pq.remove();
-		return root;
+		return pq.remove();
 	}
 	
 	private void codingHelper(HuffNode rootnode, String path, String[] encodings) {
@@ -109,13 +111,14 @@ public class HuffProcessor {
 		String code="";
 		int val = in.readBits(BITS_PER_WORD);
 		if (val==-1) {
-			code=encodings[PSEUDO_EOF];
+			code=code+encodings[PSEUDO_EOF];
 			out.writeBits(code.length(), Integer.parseInt(code,2));
 		}
 		
 		else {
-			code=encodings[val];
+			code=code+encodings[val];
 			out.writeBits(code.length(), Integer.parseInt(code,2));
+			code="";
 		}
 		
 		/*String code=encodings[val];
