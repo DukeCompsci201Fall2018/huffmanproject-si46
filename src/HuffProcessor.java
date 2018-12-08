@@ -75,11 +75,14 @@ public class HuffProcessor {
 		return root;
 	}
 	
-	public void codingHelper(HuffNode rootnode, String s, String[] encodings) {
+	public void codingHelper(HuffNode rootnode, String path, String[] encodings) {
+		path="";
 		if (rootnode.myLeft==null && rootnode.myRight==null) {
 			encodings[rootnode.myValue]=path;
 			return;
 		}
+		codingHelper(rootnode.myLeft,path+"0",encodings);
+		codingHelper(rootnode.myRight,path+"1",encodings);
 	}
 	
 	public String[] makeCodingsFromTree(HuffNode rootnode) {
@@ -89,11 +92,20 @@ public class HuffProcessor {
 	}
 	
 	public void writeHeader(HuffNode rootnode, BitOutputStream out) {
-		
+		//write tree to header of compressed file
+		if (rootnode.myLeft!=null || rootnode.myRight !=null) {
+			out.write(0);
+			writeHeader(rootnode.myLeft,out);
+			writeHeader(rootnode.myRight,out);
+		}
+		else {
+			out.write(1);
+			out.writeBits(BITS_PER_WORD +1, rootnode.myValue);
+		}
 	}
 	
 	public void writeCompressedBits(String[] encodings, BitInputStream in, BitOutputStream out) {
-		
+		// write encodings for 8 bit chunk followed by encoding for PSEUDO_EOF
 	}
 	
 	public void compress(BitInputStream in, BitOutputStream out){
